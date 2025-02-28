@@ -6,7 +6,7 @@ class MainMenu extends Phaser.Scene {
 
     preload() {
         // Cargar imágenes
-        this.load.image('menuBackground', 'assets/menu.png'); // Asegúrate que la ruta sea correcta
+        this.load.image('menuBackground', 'menu.png'); // Asegúrate que la ruta sea correcta
     }
 
     create() {
@@ -112,21 +112,21 @@ class GameScene extends Phaser.Scene {
         console.log('Preload funcionando');
 
         // Cargar imágenes
-        this.load.image('background', 'assets/background2.png');
-        this.load.image('note', 'assets/note.png');
-        this.load.image('character', 'assets/muñequito.png');
+        this.load.image('background', 'background2.png');
+        this.load.image('note', 'note.png');
+        this.load.image('character', 'muñequito.png');
 
         // Cargar imágenes de notas musicales
-        this.load.image('Mi', 'assets/mi.png');
-        this.load.image('Sol', 'assets/sol.png');
-        this.load.image('Si', 'assets/si.png');
-        this.load.image('Re', 'assets/re.png');
-        this.load.image('Fa', 'assets/fa.png');
+        this.load.image('Mi', 'mi.png');
+        this.load.image('Sol', 'sol.png');
+        this.load.image('Si', 'si.png');
+        this.load.image('Re', 're.png');
+        this.load.image('Fa', 'fa.png');
 
         // Cargar sonidos
-        this.load.audio('bgMusic', 'assets/music.mp3');
-        this.load.audio('noteCorrect', 'assets/correct.mp3');
-        this.load.audio('noteWrong', 'assets/incorrect.mp3');
+        this.load.audio('bgMusic', 'music.mp3');
+        this.load.audio('noteCorrect', 'correct.mp3');
+        this.load.audio('noteWrong', 'incorrect.mp3');
     }
 
     create() {
