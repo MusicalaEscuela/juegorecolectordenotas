@@ -147,6 +147,11 @@ class GameScene extends Phaser.Scene {
         this.player = this.physics.add.sprite(400, 500, 'character').setScale(0.3);
         this.player.setCollideWorldBounds(true);
 
+        // Movimiento con el mouse (horizontalmente)
+        this.input.on('pointermove', (pointer) => {
+            this.player.x = pointer.x; // Solo se mueve en el eje X
+        });
+
         // Controles
         this.cursors = this.input.keyboard.createCursorKeys();
 
@@ -208,10 +213,10 @@ class GameScene extends Phaser.Scene {
     update() {
         // Movimiento del jugador
         if (this.cursors.left.isDown) {
-            this.player.setVelocityX(-200);
+            this.player.setVelocityX(-400);
             this.player.flipX = true;
         } else if (this.cursors.right.isDown) {
-            this.player.setVelocityX(200);
+            this.player.setVelocityX(400);
             this.player.flipX = false;
         } else {
             this.player.setVelocityX(0);
