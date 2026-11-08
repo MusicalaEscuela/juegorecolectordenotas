@@ -172,6 +172,19 @@ const server = http.createServer(async (req, res) => {
       const {Storage}=await import('/services.js');const {unlockedSkins}=await import('/data.adventure.js');
       const p=Storage.getProgress();return [Object.keys(p.best).length,unlockedSkins(p).length,p.best['mixed-10'].stars];
     }),[30,3,3]);
+    // Finishing while a movement button is held must not activate a result action.
+    await start('lines',1);
+    const held=await page.locator('[data-move="1"]').boundingBox();
+    await page.mouse.move(held.x+held.width/2,held.y+held.height/2);await page.mouse.down();
+    await page.evaluate(() => window.__musi.game.scene.getScene('GameScene')._levelWin());
+    await page.waitForSelector('.results-screen');
+    await page.waitForTimeout(1500);
+    assert.equal(await page.locator('[data-retry]').isDisabled(),true);
+    await page.mouse.up();
+    await page.waitForFunction(() => !document.querySelector('[data-retry]').disabled);
+    assert.ok(await page.locator('.results-screen').count());
+    await page.locator('[data-next]').click();
+    await page.waitForFunction(() => window.__musi.game.scene.getScene('GameScene')._introOpen);
     for (const skin of ['astronaut','conductor']) {
       await page.evaluate(async skin => (await import('/services.js')).Storage.patchSettings({skin}),skin);
       await start('lines',1);
