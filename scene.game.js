@@ -9,7 +9,7 @@ import { Adventure } from './game.adventure.js';
 import { starsFor, stageFor, CHARACTER_ART, unlockedSkins } from './data.adventure.js';
 import { BACKGROUND_FILES } from './data.lesson.js';
 import { registerCharacterFrames } from './scene.boot.js';
-import { modal, escapeHTML as e } from './ui.dom.js';
+import { modal, mountScreen, escapeHTML as e } from './ui.dom.js';
 
 function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
@@ -90,6 +90,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   preload() {
+    this.loadingView=mountScreen(this,'modal-layer','<section class="dialog" role="status"><h2>Preparando el nivel…</h2><p>Cargando escenario y traje de Musi.</p></section>');
     const bg=this.lesson.scene?.backgroundKey;
     if(bg && BACKGROUND_FILES[bg] && !this.textures.exists(bg))this.load.image(bg,BACKGROUND_FILES[bg]);
     const skins=unlockedSkins(Storage.getProgress());
@@ -101,6 +102,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   create() {
+    this.loadingView?.remove();this.loadingView=null;
     registerCharacterFrames(this,this._skinToLoad);
     Audio.bind(this);
     this.physics.world.resume();
