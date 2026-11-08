@@ -80,7 +80,7 @@ const server = http.createServer(async (req, res) => {
         return Number(s.player.frame.name);
       });
       return {
-        art: ['musi-explorer','musi-explorer-sheet','musi-astronaut','musi-conductor'].every(key=>game.textures.exists(key)),
+        art: ['musi-explorer-sheet'].every(key=>game.textures.exists(key)),
         frames,
         proportional: Math.abs(s.player.scaleX-s.player.scaleY)<0.00001,
         frameSize: [s.player.frame.width,s.player.frame.height],

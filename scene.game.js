@@ -6,7 +6,9 @@ import { spawnNote } from './entity.note.js';
 import { HUD } from './ui.hud.js';
 import { StaffBoard } from './ui.staff.js';
 import { Adventure } from './game.adventure.js';
-import { starsFor, stageFor } from './data.adventure.js';
+import { starsFor, stageFor, CHARACTER_ART, unlockedSkins } from './data.adventure.js';
+import { BACKGROUND_FILES } from './data.lesson.js';
+import { registerCharacterFrames } from './scene.boot.js';
 import { modal, escapeHTML as e } from './ui.dom.js';
 
 function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
@@ -87,7 +89,19 @@ export class GameScene extends Phaser.Scene {
     this._pauseUIShown = false;
   }
 
+  preload() {
+    const bg=this.lesson.scene?.backgroundKey;
+    if(bg && BACKGROUND_FILES[bg] && !this.textures.exists(bg))this.load.image(bg,BACKGROUND_FILES[bg]);
+    const skins=unlockedSkins(Storage.getProgress());
+    this._skinToLoad=skins.find(s=>s.id===Storage.getSettings().skin)?.id || 'explorer';
+    const art=CHARACTER_ART[this._skinToLoad];
+    if(art?.sheet && !this.textures.exists(`musi-${this._skinToLoad}-sheet`))this.load.image(`musi-${this._skinToLoad}-sheet`,art.sheet);
+    else if(!art?.sheet && art?.image && !this.textures.exists(`musi-${this._skinToLoad}`))this.load.image(`musi-${this._skinToLoad}`,art.image);
+    for(const [key,path] of [['noteCorrect','assets/correct.mp3'],['noteWrong','assets/incorrect.mp3']])if(!this.cache.audio.exists(key))this.load.audio(key,path);
+  }
+
   create() {
+    registerCharacterFrames(this,this._skinToLoad);
     Audio.bind(this);
     this.physics.world.resume();
     this._ending = false;
@@ -121,9 +135,13 @@ export class GameScene extends Phaser.Scene {
     this._layoutObserver.observe(this.hud.footer);
 
     if (this.lesson.scene?.music) {
-      Audio.playMusic(this.lesson.scene.music, {
-        volume: Audio.getSettings().musicVolume ?? 0.45,
-      });
+      const play=()=>{if(this.sys.isActive() && !State.get().paused && !this._ending) Audio.playMusic(this.lesson.scene.music,{volume:Audio.getSettings().musicVolume ?? 0.45});};
+      if(this.cache.audio.exists(this.lesson.scene.music))play();
+      else {
+        this.load.once(`filecomplete-audio-${this.lesson.scene.music}`,play);
+        this.load.audio(this.lesson.scene.music,'assets/music.mp3');
+        this.load.start();
+      }
     }
 
     this._setupInput();
@@ -669,6 +687,7 @@ export class GameScene extends Phaser.Scene {
     if (this.spawnTimer) this.spawnTimer.paused = false;
     if (this.goalTimer) this.goalTimer.paused = false;
     Audio.resumeMusic();
+    if(this.lesson.scene?.music && this.cache.audio.exists(this.lesson.scene.music) && !this.sound.get(this.lesson.scene.music)) Audio.playMusic(this.lesson.scene.music,{volume:Audio.getSettings().musicVolume ?? 0.45});
 
     State.resume();
     this._pauseUIShown = false;

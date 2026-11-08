@@ -2,16 +2,15 @@
 
 import { CHARACTER_ART } from './data.adventure.js';
 
-import { BACKGROUND_FILES } from './data.lesson.js';
 
-const STATIC_ASSETS = Object.freeze([
-  { type: 'image', key: 'menuBackground', path: 'assets/menu.png' },
-  { type: 'image', key: 'noteBase', path: 'assets/note.png' },
-  { type: 'image', key: 'character', path: 'assets/muñequito.png' },
-  { type: 'audio', key: 'bgMusic', path: 'assets/music.mp3' },
-  { type: 'audio', key: 'noteCorrect', path: 'assets/correct.mp3' },
-  { type: 'audio', key: 'noteWrong', path: 'assets/incorrect.mp3' },
-]);
+export function registerCharacterFrames(scene, skin) {
+  const art=CHARACTER_ART[skin];
+  if (!art) return;
+  const portrait=scene.textures.exists(`musi-${skin}`) && scene.textures.get(`musi-${skin}`);
+  if(portrait && art.crop && !portrait.has('portrait')) { const c=art.crop; portrait.add('portrait',0,c.x,c.y,c.width,c.height); }
+  const sheet=scene.textures.exists(`musi-${skin}-sheet`) && scene.textures.get(`musi-${skin}-sheet`);
+  if(sheet && art.sheet) { const c=art.sheetCrop || {x:0,y:0,width:art.frameWidth,height:art.frameHeight};for(let i=0;i<4;i++)if(!sheet.has(i))sheet.add(i,0,i*art.frameWidth+c.x,c.y,c.width,c.height); }
+}
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -25,16 +24,9 @@ export class BootScene extends Phaser.Scene {
   preload() {
     this._buildLoader();
 
-    Object.entries(BACKGROUND_FILES).forEach(([key, path]) => this.load.image(key, path));
-    STATIC_ASSETS.forEach((asset) => {
-      if (asset.type === 'audio') this.load.audio(asset.key, asset.path);
-      else this.load.image(asset.key, asset.path);
-    });
-
-    for (const [skin, art] of Object.entries(CHARACTER_ART)) {
-      if (art.image) this.load.image(`musi-${skin}`, art.image);
-      if (art.sheet) this.load.image(`musi-${skin}-sheet`, art.sheet);
-    }
+    // Only the two essential textures block the menu. Each level loads its own assets.
+    this.load.image('noteBase','assets/note.png');
+    this.load.image('character','assets/muñequito.png');
 
     this.load.on('progress', (value) => this._updateLoader(value));
     this.load.once('complete', () => {
@@ -44,16 +36,6 @@ export class BootScene extends Phaser.Scene {
   }
 
   create() {
-    for (const [skin, art] of Object.entries(CHARACTER_ART)) {
-      if (art.image && this.textures.exists(`musi-${skin}`)) {
-        const c = art.crop;
-        if (c) this.textures.get(`musi-${skin}`).add('portrait', 0, c.x, c.y, c.width, c.height);
-      }
-      if (art.sheet && this.textures.exists(`musi-${skin}-sheet`)) {
-        const c = art.sheetCrop || { x: 0, y: 0, width: art.frameWidth, height: art.frameHeight };
-        for (let i = 0; i < 4; i++) this.textures.get(`musi-${skin}-sheet`).add(i, 0, i * art.frameWidth + c.x, c.y, c.width, c.height);
-      }
-    }
     this.scene.start('MenuScene');
   }
 
