@@ -2,6 +2,6 @@
   "name": "musi-cazador-melodias",
   "private": true,
   "type": "module",
-  "scripts": { "test": "node tests/adventure.cjs && node tests/special.cjs" },
+  "scripts": { "test": "node tests/adventure.cjs && node tests/special.cjs && node tests/music.cjs" },
   "devDependencies": { "playwright": "1.65.0" }
 }

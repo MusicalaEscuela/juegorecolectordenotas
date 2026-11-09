@@ -284,6 +284,8 @@ export const State = (() => {
 export const Audio = (() => {
   let scene = null;
   let music = null;
+  let musicGain = 1;
+  let musicPaused = false;
   let settings = Storage.getSettings();
 
   // Anti-spam SFX (evita “tatatatata” si choca rápido)
@@ -321,7 +323,7 @@ export const Audio = (() => {
       sfxVolume:   (sfxVolume == null) ? settings.sfxVolume : sfxVolume,
     });
 
-    if (music) music.setVolume(settings.musicVolume);
+    if (music) music.setVolume(settings.musicVolume * musicGain);
     Events.emit(EVT.AUDIO_VOLUMES, { ...settings });
     return getSettings();
   };
@@ -331,23 +333,25 @@ export const Audio = (() => {
 
     stopMusic();
 
-    const vol = clampNum(opts.volume ?? settings.musicVolume ?? 0.45, 0, 1, 0.45);
+    musicGain = clampNum(opts.gain ?? 1, 0, 1, 1);
+    const vol = clampNum(opts.volume ?? settings.musicVolume ?? 0.45, 0, 1, 0.45) * musicGain;
     const loop = (opts.loop == null) ? true : !!opts.loop;
 
     music = scene.sound.add(key, { loop, volume: vol });
 
     // Si no está bloqueado, arranca ya
-    if (!scene.sound.locked) music.play();
+    if (!scene.sound.locked && !musicPaused) music.play();
 
     // Si está bloqueado (móvil), arranca al UNLOCKED
     scene.sound.once(Phaser.Sound.Events.UNLOCKED, () => {
-      if (music && !music.isPlaying) music.play();
+      if (music && !musicPaused && !music.isPlaying && !music.isPaused) music.play();
     });
 
     return music;
   };
 
   const stopMusic = () => {
+    musicPaused = false;
     if (!music) return;
     try { music.stop(); } catch {}
     try { music.destroy(); } catch {}
@@ -355,11 +359,16 @@ export const Audio = (() => {
   };
 
   const pauseMusic = () => {
+    musicPaused = true;
     try { music?.pause(); } catch {}
   };
 
   const resumeMusic = () => {
-    try { music?.resume(); } catch {}
+    musicPaused = false;
+    try {
+      if (music?.isPaused) music.resume();
+      else if (music && !music.isPlaying && !scene.sound.locked) music.play();
+    } catch {}
   };
 
   const sfx = (key, opts = {}) => {

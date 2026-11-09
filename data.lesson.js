@@ -70,6 +70,11 @@ export const BACKGROUND_FILES = deepFreeze({
 
 export const BACKGROUNDS = Object.freeze(Object.keys(BACKGROUND_FILES));
 
+export const MUSIC_FILES = Object.freeze({
+  bgMusic: 'assets/music.mp3',
+  explorationMusic: 'assets/music/where-the-sunbeams-play-loop.mp3',
+});
+
 export const DEFAULT_RULES = deepFreeze({
   targetPerLevel: 5,
   lives: 3,
@@ -195,7 +200,8 @@ function makeLesson(modeId, level, overrides = {}) {
     title: `${mode.label} · Nivel ${lvl}`,
     scene: {
       backgroundKey: overrides.backgroundKey ?? bgFor(lvl),
-      music: overrides.music ?? 'bgMusic',
+      music: overrides.music ?? ((overrides.backgroundKey ?? bgFor(lvl)) === 'bg1' ? 'explorationMusic' : 'bgMusic'),
+      musicGain: overrides.musicGain ?? ((overrides.backgroundKey ?? bgFor(lvl)) === 'bg1' ? 0.08 : 1),
     },
     notes: {
       pool,

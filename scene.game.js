@@ -7,7 +7,7 @@ import { HUD } from './ui.hud.js';
 import { StaffBoard } from './ui.staff.js';
 import { Adventure } from './game.adventure.js';
 import { starsFor, stageFor, CHARACTER_ART, unlockedSkins } from './data.adventure.js';
-import { BACKGROUND_FILES } from './data.lesson.js';
+import { BACKGROUND_FILES, MUSIC_FILES } from './data.lesson.js';
 import { registerCharacterFrames } from './scene.boot.js';
 import { modal, mountScreen, escapeHTML as e } from './ui.dom.js';
 
@@ -137,11 +137,11 @@ export class GameScene extends Phaser.Scene {
     this._layoutObserver.observe(this.hud.footer);
 
     if (this.lesson.scene?.music) {
-      const play=()=>{if(this.sys.isActive() && !State.get().paused && !this._ending) Audio.playMusic(this.lesson.scene.music,{volume:Audio.getSettings().musicVolume ?? 0.45});};
+      const play=()=>{if(this.sys.isActive() && !State.get().paused && !this._ending) Audio.playMusic(this.lesson.scene.music,{volume:Audio.getSettings().musicVolume ?? 0.45,gain:this.lesson.scene.musicGain ?? 1});};
       if(this.cache.audio.exists(this.lesson.scene.music))play();
       else {
         this.load.once(`filecomplete-audio-${this.lesson.scene.music}`,play);
-        this.load.audio(this.lesson.scene.music,'assets/music.mp3');
+        this.load.audio(this.lesson.scene.music,MUSIC_FILES[this.lesson.scene.music] || MUSIC_FILES.bgMusic);
         this.load.start();
       }
     }
@@ -689,7 +689,7 @@ export class GameScene extends Phaser.Scene {
     if (this.spawnTimer) this.spawnTimer.paused = false;
     if (this.goalTimer) this.goalTimer.paused = false;
     Audio.resumeMusic();
-    if(this.lesson.scene?.music && this.cache.audio.exists(this.lesson.scene.music) && !this.sound.get(this.lesson.scene.music)) Audio.playMusic(this.lesson.scene.music,{volume:Audio.getSettings().musicVolume ?? 0.45});
+    if(this.lesson.scene?.music && this.cache.audio.exists(this.lesson.scene.music) && !this.sound.get(this.lesson.scene.music)) Audio.playMusic(this.lesson.scene.music,{volume:Audio.getSettings().musicVolume ?? 0.45,gain:this.lesson.scene.musicGain ?? 1});
 
     State.resume();
     this._pauseUIShown = false;
