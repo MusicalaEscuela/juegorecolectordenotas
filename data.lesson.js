@@ -75,6 +75,9 @@ export const MUSIC_FILES = Object.freeze({
   explorationMusic: 'assets/music/where-the-sunbeams-play-loop.mp3',
   spaceMusic: 'assets/music/orbit-playground-loop.mp3',
   orbitMorningMusic: 'assets/music/sunday-morning-orbit-loop.mp3',
+  gardenMusic: 'assets/music/the-garden-path-loop.mp3',
+  canopyMusic: 'assets/music/golden-canopy-loop.mp3',
+  crystalMusic: 'assets/music/crystal-forest-loop.mp3',
 });
 
 export const DEFAULT_RULES = deepFreeze({
@@ -202,8 +205,8 @@ function makeLesson(modeId, level, overrides = {}) {
     title: `${mode.label} · Nivel ${lvl}`,
     scene: {
       backgroundKey: overrides.backgroundKey ?? bgFor(lvl),
-      music: overrides.music ?? ({ bg1: 'explorationMusic', bg2: 'orbitMorningMusic', bg3: 'spaceMusic' }[overrides.backgroundKey ?? bgFor(lvl)] || 'bgMusic'),
-      musicGain: overrides.musicGain ?? (['bg1', 'bg2', 'bg3'].includes(overrides.backgroundKey ?? bgFor(lvl)) ? 0.08 : 1),
+      music: overrides.music ?? ({ bg1: 'explorationMusic', bg2: 'orbitMorningMusic', bg3: 'spaceMusic', bg7: 'canopyMusic', bg8: 'gardenMusic', bg11: 'crystalMusic' }[overrides.backgroundKey ?? bgFor(lvl)] || 'bgMusic'),
+      musicGain: overrides.musicGain ?? (['bg1', 'bg2', 'bg3', 'bg7', 'bg8', 'bg11'].includes(overrides.backgroundKey ?? bgFor(lvl)) ? 0.08 : 1),
     },
     notes: {
       pool,
